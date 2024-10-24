@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FridgeMaster</string>
+    <string name="add_food">Add Food</string>
+    <string name="check_inventory">Check Inventory</string>
+</resources>
