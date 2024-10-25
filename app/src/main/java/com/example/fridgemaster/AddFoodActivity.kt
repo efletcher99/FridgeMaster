@@ -1,5 +1,6 @@
 package com.example.fridgemaster
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,12 +15,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,10 +52,18 @@ class AddFoodActivity : ComponentActivity() {
         }
     }
 
+    data class FoodItem(
+        val name: String,
+        val quantity: Int,
+        val expirationDate: String
+    )
+
     @Composable
     fun AddFoodScreen() {
         var foodName by remember { mutableStateOf("") }
-        var foodQuantity by remember { mutableStateOf(1) }
+        var foodQuantity by remember { mutableIntStateOf(1) }
+        var expirationDate by remember {mutableStateOf("")}
+        var foodList by remember { mutableStateOf(listOf<FoodItem>()) }
 
         Column(
             modifier = Modifier
@@ -56,7 +72,28 @@ class AddFoodActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Add Food Item", style = MaterialTheme.typography.headlineMedium)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(onClick = {
+                    val intent = Intent(this@AddFoodActivity, MainActivity::class.java)
+                    startActivity(intent)
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+
+                        contentDescription = "Back"
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(
+                        40.dp
+                    )
+                )
+                Text(text = "Add Food Item", style = MaterialTheme.typography.headlineMedium)
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -72,7 +109,6 @@ class AddFoodActivity : ComponentActivity() {
                         .weight(2f)
                         .padding(end = 16.dp) // Add some space between TextField and counter
                 )
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
@@ -92,7 +128,7 @@ class AddFoodActivity : ComponentActivity() {
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     Box(
                         modifier = Modifier
@@ -108,7 +144,7 @@ class AddFoodActivity : ComponentActivity() {
                         style = MaterialTheme.typography.bodyLarge
                     )
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     // Increment Button
                     Button(
@@ -124,20 +160,60 @@ class AddFoodActivity : ComponentActivity() {
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = expirationDate,
+                    onValueChange = {expirationDate = it},
+                    label = { Text("Expiration Date                   ex. 3/21/2024") },
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(end = 16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
             // Add Food Button
             Button(
                 onClick = {
-                    // Handle adding food logic here
-                    // save to database/inventory
-                    // then
-                    foodQuantity = 1
-                    foodName = ""
+                    if (foodName.isNotEmpty() && expirationDate.isNotEmpty()) {
+                        // Create new FoodItem and add to list
+                        val newItem = FoodItem(foodName, foodQuantity, expirationDate)
+                        foodList = foodList.toMutableList().apply { add(newItem) }
+                        // Clear inputs
+                        foodName = ""
+                        foodQuantity = 1
+                        expirationDate = ""
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Add Food")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Display the food list
+            LazyColumn {
+                items(foodList) { item ->
+                    Text(text = "${item.name}, Quantity: ${item.quantity}, Expiration: ${item.expirationDate}")
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+
+            Button(
+                onClick = {
+                    // Handle save logic here
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(text = "Save Food to Inventory")
             }
         }
     }
