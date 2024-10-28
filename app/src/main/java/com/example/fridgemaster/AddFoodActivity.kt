@@ -39,11 +39,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.fridgemaster.FoodItem
 import com.example.fridgemaster.ui.theme.FridgeMasterTheme
+import kotlinx.coroutines.launch
 
 class AddFoodActivity : ComponentActivity() {
+    private lateinit var db: AppDatabase
+    private lateinit var foodItemDao: FoodItemDao
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Initialize Room
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "food_inventory"
+        ).build()
+        foodItemDao = db.foodItemDao()
 
         setContent {
             FridgeMasterTheme {
@@ -208,7 +222,12 @@ class AddFoodActivity : ComponentActivity() {
 
             Button(
                 onClick = {
-                    // Handle save logic here
+                    lifecycleScope.launch {
+                        for (item in foodList) {
+                            val foodItem = com.example.fridgemaster.FoodItem(name = item.name, quantity = item.quantity, expirationDate = item.expirationDate)
+                            foodItemDao.insertFoodItem(foodItem)
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
