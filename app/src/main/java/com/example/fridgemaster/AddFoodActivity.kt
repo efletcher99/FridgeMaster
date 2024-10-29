@@ -40,8 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import com.example.fridgemaster.FoodItem
 import com.example.fridgemaster.ui.theme.FridgeMasterTheme
 import kotlinx.coroutines.launch
 
@@ -53,10 +51,7 @@ class AddFoodActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         //Initialize Room
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "food_inventory"
-        ).build()
+        db = DatabaseInstance.getDatabase(applicationContext)
         foodItemDao = db.foodItemDao()
 
         setContent {
@@ -78,6 +73,7 @@ class AddFoodActivity : ComponentActivity() {
         var foodQuantity by remember { mutableIntStateOf(1) }
         var expirationDate by remember {mutableStateOf("")}
         var foodList by remember { mutableStateOf(listOf<FoodItem>()) }
+
 
         Column(
             modifier = Modifier
@@ -106,7 +102,7 @@ class AddFoodActivity : ComponentActivity() {
                         40.dp
                     )
                 )
-                Text(text = "Add Food Item", style = MaterialTheme.typography.headlineMedium)
+                Text(text = "Add Food", style = MaterialTheme.typography.headlineMedium)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -121,14 +117,13 @@ class AddFoodActivity : ComponentActivity() {
                     label = { Text("Food Name") },
                     modifier = Modifier
                         .weight(2f)
-                        .padding(end = 16.dp) // Add some space between TextField and counter
+                        .padding(end = 16.dp)
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1.5f) // Make this row take the remaining space
+                    modifier = Modifier.weight(1.5f)
                 ) {
-                    // Decrement Button
                     Button(
                         onClick = {
                             if (foodQuantity > 1) foodQuantity--
@@ -149,7 +144,6 @@ class AddFoodActivity : ComponentActivity() {
                             .width(8.dp)
                             .align(Alignment.CenterVertically)
                     )
-                    // Quantity Display
                     Text(
                         text = foodQuantity.toString(),
                         modifier = Modifier
@@ -160,7 +154,6 @@ class AddFoodActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    // Increment Button
                     Button(
                         onClick = { foodQuantity++ },
                         modifier = Modifier.size(50.dp),
@@ -191,11 +184,9 @@ class AddFoodActivity : ComponentActivity() {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            // Add Food Button
             Button(
                 onClick = {
                     if (foodName.isNotEmpty() && expirationDate.isNotEmpty()) {
-                        // Create new FoodItem and add to list
                         val newItem = FoodItem(foodName, foodQuantity, expirationDate)
                         foodList = foodList.toMutableList().apply { add(newItem) }
                         // Clear inputs
@@ -211,7 +202,6 @@ class AddFoodActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Display the food list
             LazyColumn {
                 items(foodList) { item ->
                     Text(text = "${item.name}, Quantity: ${item.quantity}, Expiration: ${item.expirationDate}")
@@ -228,6 +218,8 @@ class AddFoodActivity : ComponentActivity() {
                             foodItemDao.insertFoodItem(foodItem)
                         }
                     }
+                    // make foodList empty
+                    foodList = listOf()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

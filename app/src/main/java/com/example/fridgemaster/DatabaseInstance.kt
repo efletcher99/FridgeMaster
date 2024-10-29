@@ -1,18 +1,20 @@
 package com.example.fridgemaster
 
+
 import android.content.Context
 import androidx.room.Room
+import com.example.fridgemaster.AppDatabase
 
-object DatabaseBuilder {
+object DatabaseInstance {
     @Volatile
     private var INSTANCE: AppDatabase? = null
 
-    fun getInstance(context: Context): AppDatabase {
+    fun getDatabase(context: Context): AppDatabase {
         return INSTANCE ?: synchronized(this) {
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "app_database"
+                "food_inventory"
             ).build()
             INSTANCE = instance
             instance
