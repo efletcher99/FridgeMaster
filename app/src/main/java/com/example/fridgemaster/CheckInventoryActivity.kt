@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,58 +47,83 @@ class CheckInventoryActivity : ComponentActivity() {
         db = DatabaseInstance.getDatabase(applicationContext)
         foodItemDao = db.foodItemDao()
 
-        setContent {
-            FridgeMasterTheme {
-                InventoryScreen()
+        lifecycleScope.launch{
+            val items = foodItemDao.getAllFoodItems()
+            setContent {
+                FridgeMasterTheme {
+                    InventoryScreen(items)
+                }
             }
+
         }
     }
 
     @Composable
-    fun InventoryScreen() {
-        var foodItems by remember { mutableStateOf(emptyList<FoodItem>()) }
+    fun InventoryScreen(initialItems: List<FoodItem> = emptyList()) {
+        var foodItems by remember { mutableStateOf(initialItems) }
+        var isDropdownExpanded by remember { mutableStateOf(false) }
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = {
-                    val intent = Intent(this@CheckInventoryActivity, MainActivity::class.java)
-                    startActivity(intent)
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-
-                Spacer(
-                    modifier = Modifier.width(
-                        40.dp
-                    )
-                )
-                Text(text = "Check Inventory", style = MaterialTheme.typography.headlineMedium)
-            }
-            Column(modifier = Modifier.fillMaxSize()) {
-
-                Button(onClick = {
-                    lifecycleScope.launch{
-                        foodItems = foodItemDao.getAllFoodItems()
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(onClick = {
+                        val intent = Intent(this@CheckInventoryActivity, MainActivity::class.java)
+                        startActivity(intent)
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
-                }) {
-                    Text(text = "Show Inventory")
+
+                    Spacer(modifier = Modifier.width(40.dp))
+                    Text(text = "Check Inventory", style = MaterialTheme.typography.headlineMedium)
                 }
 
                 foodItems.forEach { item ->
                     Text(text = "${item.name}, Quantity: ${item.quantity}, Expiration Date: ${item.expirationDate}")
                 }
+            }
+
+            Button(
+                onClick = { isDropdownExpanded = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Text(text = "Sort Inventory")
+            }
+            DropdownMenu(
+                expanded = isDropdownExpanded,
+                onDismissRequest = { isDropdownExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        isDropdownExpanded = false
+                        foodItems = foodItems.sortedBy { it.name }
+                    },
+                    text = { Text("Sort by Name") }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        isDropdownExpanded = false
+                        foodItems = foodItems.sortedBy { it.expirationDate }
+                    },
+                    text = { Text("Sort by Expiration Date") }
+                )
             }
         }
     }
