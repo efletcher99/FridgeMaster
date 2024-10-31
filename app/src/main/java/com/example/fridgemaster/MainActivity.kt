@@ -18,8 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.fridgemaster.ui.theme.FridgeMasterTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +48,17 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Title
+            Text(
+                text = "Fridge Master",
+                style = TextStyle(
+                    fontSize = 45.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(200.dp))
+
             Button(onClick = {
                 val intent = Intent(this@MainActivity, AddFoodActivity::class.java)
                 startActivity(intent)
@@ -59,6 +73,15 @@ class MainActivity : ComponentActivity() {
                 startActivity(intent)
             }) {
                 Text(text = "Check Inventory")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                val intent = Intent(this@MainActivity, GenerateRecipeActivity::class.java)
+                startActivity(intent)
+            }) {
+                Text(text = "Generate Recipe")
             }
         }
     }
