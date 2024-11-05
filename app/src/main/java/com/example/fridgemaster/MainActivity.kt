@@ -6,13 +6,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,47 +47,67 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen(innerPadding: PaddingValues) {
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-            // Title
-            Text(
-                text = "Fridge Master",
-                style = TextStyle(
-                    fontSize = 45.sp,
-                    fontWeight = FontWeight.Bold
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title
+                Text(
+                    text = "Fridge Master",
+                    style = TextStyle(
+                        fontSize = 45.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
 
-            Spacer(modifier = Modifier.height(200.dp))
+                Spacer(modifier = Modifier.height(200.dp))
 
-            Button(onClick = {
-                val intent = Intent(this@MainActivity, AddFoodActivity::class.java)
-                startActivity(intent)
-            }) {
-                Text(text = "Add Food")
+                Button(onClick = {
+                    val intent = Intent(this@MainActivity, AddFoodActivity::class.java)
+                    startActivity(intent)
+                }) {
+                    Text(text = "Add Food")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = {
+                    val intent = Intent(this@MainActivity, CheckInventoryActivity::class.java)
+                    startActivity(intent)
+                }) {
+                    Text(text = "Check Inventory")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(onClick = {
+                    val intent = Intent(this@MainActivity, GenerateRecipeActivity::class.java)
+                    startActivity(intent)
+                }) {
+                    Text(text = "Generate Recipe")
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = {
-                val intent = Intent(this@MainActivity, CheckInventoryActivity::class.java)
-                startActivity(intent)
-            }) {
-                Text(text = "Check Inventory")
-            }
+            IconButton(
+                onClick = {
+                    val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                    startActivity(intent)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(25.dp)
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = {
-                val intent = Intent(this@MainActivity, GenerateRecipeActivity::class.java)
-                startActivity(intent)
-            }) {
-                Text(text = "Generate Recipe")
+            ) {
+                Icon(imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    modifier = Modifier.size(48.dp))
             }
         }
     }
