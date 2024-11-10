@@ -17,13 +17,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,6 +69,7 @@ class AddFoodActivity : ComponentActivity() {
     data class FoodItem(
         val name: String,
         val quantity: Int,
+        val unit: String,
         val expirationDate: String
     )
 
@@ -71,19 +77,22 @@ class AddFoodActivity : ComponentActivity() {
     fun AddFoodScreen() {
         var foodName by remember { mutableStateOf("") }
         var foodQuantity by remember { mutableIntStateOf(1) }
-        var expirationDate by remember {mutableStateOf("")}
+        var foodUnit by remember {mutableStateOf("")}
+        var expirationDate by remember { mutableStateOf("") }
         var foodList by remember { mutableStateOf(listOf<FoodItem>()) }
-
+        var expanded by remember { mutableStateOf(false) }
+        val units = listOf("unit(s)", "oz", "cups", "liters", "lbs")
+        var selectedUnit by remember { mutableStateOf(units[0]) }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = {
@@ -92,137 +101,154 @@ class AddFoodActivity : ComponentActivity() {
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-
                         contentDescription = "Back"
                     )
                 }
 
-                Spacer(
-                    modifier = Modifier.width(
-                        40.dp
-                    )
+                Text(
+                    text = "Add Food",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
                 )
-                Text(text = "Add Food", style = MaterialTheme.typography.headlineMedium)
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Food Name TextField
+            TextField(
+                value = foodName,
+                onValueChange = { foodName = it },
+                label = { Text("Food Name") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    //.shadow(4.dp, RoundedCornerShape(8.dp))
+                    .padding(vertical = 8.dp)
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                TextField(
-                    value = foodName,
-                    onValueChange = { foodName = it },
-                    label = { Text("Food Name") },
-                    modifier = Modifier
-                        .weight(2f)
-                        .padding(end = 16.dp)
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1.5f)
+                Button(
+                    onClick = { if (foodQuantity > 1) foodQuantity-- },
+                    modifier = Modifier.size(50.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Button(
-                        onClick = {
-                            if (foodQuantity > 1) foodQuantity--
-                        },
-                        modifier = Modifier.size(50.dp),
-                    ) {
-                        Text(
-                            text = "-",
-                            style = TextStyle(fontSize= 20.sp, color = Color.White),
-                            textAlign = TextAlign.Center
-                        )
+                    Text("-", style = TextStyle(fontSize = 20.sp, color = Color.White))
+                }
+
+                Text(
+                    text = foodQuantity.toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.width(30.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                Button(
+                    onClick = { foodQuantity++ },
+                    modifier = Modifier.size(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("+", style = TextStyle(fontSize = 20.sp, color = Color.White))
+                }
+
+                Box(modifier = Modifier.weight(1f)) {
+                    TextButton(onClick = { expanded = true }) {
+                        Text(selectedUnit)
                     }
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .width(8.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Text(
-                        text = foodQuantity.toString(),
-                        modifier = Modifier
-                            .width(15.dp)
-                            .align(Alignment.CenterVertically),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    Button(
-                        onClick = { foodQuantity++ },
-                        modifier = Modifier.size(50.dp),
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
                     ) {
-                        Text(
-                            text = "+",
-                            style = TextStyle(fontSize= 20.sp, color = Color.White),
-                            textAlign = TextAlign.Center
-                        )
+                        units.forEach { unit ->
+                            DropdownMenuItem(
+                                text = { Text(unit) },
+                                onClick = {
+                                    selectedUnit = unit
+                                    expanded = false
+                                    foodUnit = unit
+                                }
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextField(
-                    value = expirationDate,
-                    onValueChange = {expirationDate = it},
-                    label = { Text("Expiration Date                   ex. 3/21/2024") },
-                    modifier = Modifier
-                        .weight(2f)
-                        .padding(end = 16.dp)
-                )
-            }
+            TextField(
+                value = expirationDate,
+                onValueChange = { expirationDate = it },
+                label = { Text("Expiration Date (e.g., 3/21/2024)") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    //.shadow(4.dp, RoundedCornerShape(8.dp))
+                    .padding(vertical = 8.dp)
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
                     if (foodName.isNotEmpty() && expirationDate.isNotEmpty()) {
-                        val newItem = FoodItem(foodName, foodQuantity, expirationDate)
+                        val newItem = FoodItem(foodName, foodQuantity, foodUnit, expirationDate)
                         foodList = foodList.toMutableList().apply { add(newItem) }
-                        // Clear inputs
                         foodName = ""
                         foodQuantity = 1
+                        foodUnit = ""
                         expirationDate = ""
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    //.shadow(4.dp, RoundedCornerShape(8.dp))
+                    .padding(vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(Color(0xFF3A539B))
             ) {
                 Text(text = "Add Food")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 items(foodList) { item ->
-                    Text(text = "${item.name}, Quantity: ${item.quantity}, Expiration: ${item.expirationDate}")
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            //.shadow(2.dp, RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "${item.name}, Quantity: ${item.quantity} ${item.unit}, Expiration: ${item.expirationDate}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
                     lifecycleScope.launch {
                         for (item in foodList) {
-                            val foodItem = com.example.fridgemaster.FoodItem(name = item.name, quantity = item.quantity, expirationDate = item.expirationDate)
+                            val foodItem = com.example.fridgemaster.FoodItem(name = item.name, quantity = item.quantity, unit = item.unit, expirationDate = item.expirationDate)
                             foodItemDao.insertFoodItem(foodItem)
                         }
+                        foodList = listOf()
                     }
-                    // make foodList empty
-                    foodList = listOf()
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(Color(0xFF3A539B))
             ) {
                 Text(text = "Save Food to Inventory")
             }

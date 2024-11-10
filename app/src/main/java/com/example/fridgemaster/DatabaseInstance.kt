@@ -14,7 +14,7 @@ object DatabaseInstance {
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "food_inventory"
+                "inventory"
             ).build()
             INSTANCE = instance
             instance

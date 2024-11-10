@@ -8,5 +8,6 @@ data class FoodItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val quantity: Int,
+    val unit: String,
     val expirationDate: String
 )

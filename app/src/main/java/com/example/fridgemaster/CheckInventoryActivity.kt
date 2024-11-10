@@ -93,7 +93,7 @@ class CheckInventoryActivity : ComponentActivity() {
                 }
 
                 foodItems.forEach { item ->
-                    Text(text = "${item.name}, Quantity: ${item.quantity}, Expiration Date: ${item.expirationDate}")
+                    Text(text = "${item.name}, Quantity: ${item.quantity} ${item.unit}, Expiration Date: ${item.expirationDate}")
                 }
             }
 
