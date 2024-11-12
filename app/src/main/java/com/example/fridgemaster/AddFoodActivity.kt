@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -67,10 +68,10 @@ class AddFoodActivity : ComponentActivity() {
     }
 
     data class FoodItem(
-        val name: String,
-        val quantity: Int,
-        val unit: String,
-        val expirationDate: String
+        var name: String,
+        var quantity: Int,
+        var unit: String,
+        var expirationDate: String
     )
 
     @Composable
@@ -84,6 +85,14 @@ class AddFoodActivity : ComponentActivity() {
         val units = listOf("unit(s)", "oz", "cups", "liters", "lbs")
         var selectedUnit by remember { mutableStateOf(units[0]) }
 
+
+        var selectedFoodItemIndex by remember { mutableStateOf(-1)}
+        var isEditing by remember { mutableStateOf(false)}
+        var editableName by remember { mutableStateOf("") }
+        var editableQuantity by remember { mutableIntStateOf(1) }
+        var editableUnit by remember { mutableStateOf("") }
+        var editableExpirationDate by remember { mutableStateOf("") }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,7 +101,7 @@ class AddFoodActivity : ComponentActivity() {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                //horizontalArrangement = Arrangement.spacedBy(1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = {
@@ -200,7 +209,7 @@ class AddFoodActivity : ComponentActivity() {
                         foodList = foodList.toMutableList().apply { add(newItem) }
                         foodName = ""
                         foodQuantity = 1
-                        foodUnit = ""
+                        foodUnit = units[0]
                         expirationDate = ""
                     }
                 },
@@ -219,10 +228,18 @@ class AddFoodActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(foodList) { item ->
+                itemsIndexed(foodList) {index, item ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable {
+                                selectedFoodItemIndex = index
+                                isEditing = true
+                                editableName = item.name
+                                editableQuantity = item.quantity
+                                editableUnit = item.unit
+                                editableExpirationDate = item.expirationDate
+                            }
                             .padding(horizontal = 8.dp)
                             //.shadow(2.dp, RoundedCornerShape(8.dp))
                             .padding(16.dp)
@@ -231,6 +248,68 @@ class AddFoodActivity : ComponentActivity() {
                             text = "${item.name}, Quantity: ${item.quantity} ${item.unit}, Expiration: ${item.expirationDate}",
                             style = MaterialTheme.typography.bodyLarge
                         )
+                    }
+                }
+            }
+
+            if (isEditing && selectedFoodItemIndex >= 0){
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    TextField(
+                        value = editableName,
+                        onValueChange = { editableName = it },
+                        label = { Text("Edit Food Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextField(
+                        value = editableQuantity.toString(),
+                        onValueChange = { editableQuantity = it.toIntOrNull() ?: 1 },
+                        label = { Text("Edit Quantity")},
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextField(
+                        value = editableUnit,
+                        onValueChange = { editableUnit = it },
+                        label = { Text("Edit Unit") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextField(
+                        value = editableExpirationDate,
+                        onValueChange = { editableExpirationDate = it },
+                        label = { Text("Expiration Date")},
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            // Update the selected item in foodList
+                            if (selectedFoodItemIndex >= 0) {
+                                val updatedItem = FoodItem(editableName, editableQuantity, editableUnit, editableExpirationDate)
+                                foodList = foodList.toMutableList().apply {
+                                    set(selectedFoodItemIndex, updatedItem)
+                                }
+                                isEditing = false
+                                selectedFoodItemIndex = -1
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text("Save Changes")
                     }
                 }
             }
