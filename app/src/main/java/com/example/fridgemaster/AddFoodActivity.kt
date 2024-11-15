@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -82,7 +83,7 @@ class AddFoodActivity : ComponentActivity() {
         var expirationDate by remember { mutableStateOf("") }
         var foodList by remember { mutableStateOf(listOf<FoodItem>()) }
         var expanded by remember { mutableStateOf(false) }
-        val units = listOf("unit(s)", "oz", "cups", "liters", "lbs")
+        val units = listOf("unit(s)", "fl oz", "oz", "lbs", "cups", "liters", "mL", "Tbsp", "tsp", "gallons", "grams")
         var selectedUnit by remember { mutableStateOf(units[0]) }
 
 
@@ -166,9 +167,19 @@ class AddFoodActivity : ComponentActivity() {
                     Text("+", style = TextStyle(fontSize = 20.sp, color = Color.White))
                 }
 
-                Box(modifier = Modifier.weight(1f)) {
-                    TextButton(onClick = { expanded = true }) {
+                Box(
+                    modifier = Modifier.weight(1f)
+
+                ) {
+                    TextButton(
+                        onClick = { expanded = true }
+                    ) {
                         Text(selectedUnit)
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Dropdown indicator",
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                     DropdownMenu(
                         expanded = expanded,
