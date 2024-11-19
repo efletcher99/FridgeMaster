@@ -94,6 +94,8 @@ class AddFoodActivity : ComponentActivity() {
         var editableUnit by remember { mutableStateOf("") }
         var editableExpirationDate by remember { mutableStateOf("") }
 
+        var isInvalidDate by remember { mutableStateOf(false)}
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -204,24 +206,38 @@ class AddFoodActivity : ComponentActivity() {
             TextField(
                 value = expirationDate,
                 onValueChange = { expirationDate = it },
-                label = { Text("Expiration Date (e.g., 3/21/2024)") },
+                label = { Text("Expiration Date (e.g., mm/dd/yyyy)") },
                 modifier = Modifier
                     .fillMaxWidth()
                     //.shadow(4.dp, RoundedCornerShape(8.dp))
                     .padding(vertical = 8.dp)
             )
 
+            if (isInvalidDate) {
+                Text(
+                    text = "Invalid date format. Use mm/dd/yyyy.",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
-                    if (foodName.isNotEmpty() && expirationDate.isNotEmpty()) {
-                        val newItem = FoodItem(foodName, foodQuantity, foodUnit, expirationDate)
-                        foodList = foodList.toMutableList().apply { add(newItem) }
-                        foodName = ""
-                        foodQuantity = 1
-                        foodUnit = units[0]
-                        expirationDate = ""
+                    if(expirationDate.matches(Regex("\\d{2}/?\\d{2}/?\\d{4}"))) {
+                        if (foodName.isNotEmpty() && expirationDate.isNotEmpty()) {
+                            val newItem = FoodItem(foodName, foodQuantity, foodUnit, expirationDate)
+                            foodList = foodList.toMutableList().apply { add(newItem) }
+                            foodName = ""
+                            foodQuantity = 1
+                            foodUnit = units[0]
+                            expirationDate = ""
+                            isInvalidDate = false
+                        }
+                    }else{
+                        isInvalidDate = true
                     }
                 },
                 modifier = Modifier
