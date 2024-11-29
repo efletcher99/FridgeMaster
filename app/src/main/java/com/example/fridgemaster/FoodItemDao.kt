@@ -3,6 +3,7 @@ package com.example.fridgemaster
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface FoodItemDao {
@@ -17,5 +18,8 @@ interface FoodItemDao {
 
     @Query ("DELETE FROM food_items")
     suspend fun clearAllFoodItems()
+
+    @Update
+    suspend fun updateFoodItem(foodItem: FoodItem)
 
 }

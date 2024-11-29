@@ -84,14 +84,14 @@ class MainActivity : ComponentActivity() {
                     Text(text = "Check Inventory")
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                /*Spacer(modifier = Modifier.height(16.dp))
 
                 Button(onClick = {
                     val intent = Intent(this@MainActivity, GenerateRecipeActivity::class.java)
                     startActivity(intent)
                 }) {
                     Text(text = "Generate Recipe")
-                }
+                }*/
             }
 
 

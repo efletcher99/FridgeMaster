@@ -252,7 +252,7 @@ class AddFoodActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 itemsIndexed(foodList) {index, item ->
