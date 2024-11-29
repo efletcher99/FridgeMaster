@@ -1,9 +1,11 @@
 package com.example.fridgemaster
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,11 +45,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.example.fridgemaster.ui.theme.FridgeMasterTheme
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class CheckInventoryActivity : ComponentActivity() {
     private lateinit var db: AppDatabase
     private lateinit var foodItemDao: FoodItemDao
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,6 +70,7 @@ class CheckInventoryActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun InventoryScreen(initialItems: List<FoodItem> = emptyList()) {
         var foodList by remember { mutableStateOf(initialItems) }
@@ -262,7 +268,15 @@ class CheckInventoryActivity : ComponentActivity() {
                     DropdownMenuItem(
                         onClick = {
                             isDropdownExpanded = false
-                            foodList = foodList.sortedBy { it.expirationDate }
+                            val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+
+                            foodList = foodList.sortedBy { item ->
+                                try{
+                                    LocalDate.parse(item.expirationDate, formatter)
+                                }catch(e : Exception){
+                                    null
+                                }
+                            }
                         },
                         text = { Text("Sort by Expiration Date") }
                     )
@@ -271,6 +285,7 @@ class CheckInventoryActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Preview(showBackground = true)
     @Composable
     fun InventoryPreview() {
